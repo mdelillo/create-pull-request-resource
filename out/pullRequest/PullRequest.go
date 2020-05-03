@@ -9,7 +9,7 @@ import (
 
 type PullRequest struct {
 	Description  string
-	Title  string
+	Title 	 	 string
 	Base         string
 	BranchPrefix string
 	AutoMerge    bool
@@ -20,6 +20,14 @@ type RequestBody struct{
 	Body		string
 	Head		string
 	Base		string
+}
+func NewPullRequest(descrption string, title string,base string,branchPrefix string,autoMerge bool) PullRequest {
+	request := PullRequest{Description:descrption, Title:title, Base:base, BranchPrefix:branchPrefix, AutoMerge:autoMerge}
+	if descrption == "" {request.Description = "This is default description of the PR"}
+	if title == "" {request.Title = "Pull request by bot"}
+	if base == "" {request.Base = "master"}
+	if branchPrefix == "" {request.BranchPrefix = "pr-by-bot"}
+	return request
 }
 
 func (p PullRequest) CreatePullRequest(repo github.Repo, client github.Client) (string, error) {

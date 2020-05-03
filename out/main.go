@@ -12,12 +12,12 @@ import (
 type Source struct {
 	GithubToken       	string `json:"github_token"`
 	Repository   		string `json:"repository"`
-	Base   				string `json:"base"`
-	Description   		string `json:"description"`
-	Title		   		string `json:"title"`
-	BranchPrefix   	    string `json:"branch_prefix"`
+	Base   				string `json:"base,omitempty"`
+	Description   		string `json:"description,omitempty"`
+	Title		   		string `json:"title,omitempty"`
+	BranchPrefix   	    string `json:"branch_prefix,omitempty"`
 	Location   			string `json:"location"`
-	AutoMerge   		bool `json:"auto_merge"`
+	AutoMerge   		bool `json:"auto_merge,omitempty"`
 }
 
 
@@ -40,7 +40,7 @@ func main() {
 
 	repo := github.Repo{AccessToken: request.Source.GithubToken, Repository: request.Source.Repository, Location: request.Source.Location}
 
-	newPullRequest := pullRequest.PullRequest{Description: request.Source.Description, Title:request.Source.Title, BranchPrefix: request.Source.BranchPrefix, Base: request.Source.Base, AutoMerge: request.Source.AutoMerge}
+	newPullRequest := pullRequest.NewPullRequest(request.Source.Description, request.Source.Title, request.Source.BranchPrefix, request.Source.Base, request.Source.AutoMerge)
 
 	branchName, err := newPullRequest.CreatePullRequest(repo, github.GithubClient{})
 	if err != nil {
