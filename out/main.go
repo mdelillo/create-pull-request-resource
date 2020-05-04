@@ -2,7 +2,6 @@ package main
 
 import (
 	"encoding/json"
-	"fmt"
 	"github.com/pivotal/create-pull-request-resource/out/github"
 	"github.com/pivotal/create-pull-request-resource/out/pullRequest"
 	"log"
@@ -16,7 +15,6 @@ type Source struct {
 	Description   		string `json:"description,omitempty"`
 	Title		   		string `json:"title,omitempty"`
 	BranchPrefix   	    string `json:"branch_prefix,omitempty"`
-	Location   			string `json:"location"`
 	AutoMerge   		bool `json:"auto_merge,omitempty"`
 }
 
@@ -26,9 +24,9 @@ type OutRequest struct {
 }
 
 func main() {
-	fmt.Printf("starting to create PR \n")
+	log.Println("starting to create PR ")
 	if len(os.Args) != 2 {
-		fmt.Printf("usage: %s <sources directory>", os.Args[0])
+		log.Println("usage:", os.Args[0],  "<sources directory>")
 		os.Exit(1)
 	}
 
@@ -37,15 +35,20 @@ func main() {
 	if err != nil {
 		log.Fatalf("failed to read request: %s", err.Error())
 	}
+	sourcePath := os.Args[1]
 
-	repo := github.Repo{AccessToken: request.Source.GithubToken, Repository: request.Source.Repository, Location: request.Source.Location}
+	repo := github.Repo{AccessToken: request.Source.GithubToken, Repository: request.Source.Repository, Location: sourcePath}
 
-	newPullRequest := pullRequest.NewPullRequest(request.Source.Description, request.Source.Title, request.Source.BranchPrefix, request.Source.Base, request.Source.AutoMerge)
+	newPullRequest := pullRequest.NewPullRequest(request.Source.Description, request.Source.Title, request.Source.Base, request.Source.BranchPrefix, request.Source.AutoMerge)
 
-	branchName, err := newPullRequest.CreatePullRequest(repo, github.GithubClient{})
+	branchName, prNumber, err := newPullRequest.CreatePullRequest(repo, github.GithubClient{})
 	if err != nil {
-		fmt.Println(err.Error())
+		log.Println(err.Error())
 		os.Exit(1)
 	}
-	log.Println("craeted a PR with Branch name:", branchName)
+
+	log.Println("created a PR with Branch name:", branchName, "and pull request number", prNumber)
+	if newPullRequest.AutoMerge {
+		log.Println("Merged the Pull Request", prNumber)
+	}
 }

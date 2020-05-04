@@ -8,12 +8,13 @@ import (
 )
 
 type FakeClient struct {
-	ExecuteGithubApiStub        func(string, string, []byte) ([]byte, error)
+	ExecuteGithubApiStub        func(string, string, string, []byte) ([]byte, error)
 	executeGithubApiMutex       sync.RWMutex
 	executeGithubApiArgsForCall []struct {
 		arg1 string
 		arg2 string
-		arg3 []byte
+		arg3 string
+		arg4 []byte
 	}
 	executeGithubApiReturns struct {
 		result1 []byte
@@ -40,23 +41,24 @@ type FakeClient struct {
 	invocationsMutex sync.RWMutex
 }
 
-func (fake *FakeClient) ExecuteGithubApi(arg1 string, arg2 string, arg3 []byte) ([]byte, error) {
-	var arg3Copy []byte
-	if arg3 != nil {
-		arg3Copy = make([]byte, len(arg3))
-		copy(arg3Copy, arg3)
+func (fake *FakeClient) ExecuteGithubApi(arg1 string, arg2 string, arg3 string, arg4 []byte) ([]byte, error) {
+	var arg4Copy []byte
+	if arg4 != nil {
+		arg4Copy = make([]byte, len(arg4))
+		copy(arg4Copy, arg4)
 	}
 	fake.executeGithubApiMutex.Lock()
 	ret, specificReturn := fake.executeGithubApiReturnsOnCall[len(fake.executeGithubApiArgsForCall)]
 	fake.executeGithubApiArgsForCall = append(fake.executeGithubApiArgsForCall, struct {
 		arg1 string
 		arg2 string
-		arg3 []byte
-	}{arg1, arg2, arg3Copy})
-	fake.recordInvocation("ExecuteGithubApi", []interface{}{arg1, arg2, arg3Copy})
+		arg3 string
+		arg4 []byte
+	}{arg1, arg2, arg3, arg4Copy})
+	fake.recordInvocation("ExecuteGithubApi", []interface{}{arg1, arg2, arg3, arg4Copy})
 	fake.executeGithubApiMutex.Unlock()
 	if fake.ExecuteGithubApiStub != nil {
-		return fake.ExecuteGithubApiStub(arg1, arg2, arg3)
+		return fake.ExecuteGithubApiStub(arg1, arg2, arg3, arg4)
 	}
 	if specificReturn {
 		return ret.result1, ret.result2
@@ -71,17 +73,17 @@ func (fake *FakeClient) ExecuteGithubApiCallCount() int {
 	return len(fake.executeGithubApiArgsForCall)
 }
 
-func (fake *FakeClient) ExecuteGithubApiCalls(stub func(string, string, []byte) ([]byte, error)) {
+func (fake *FakeClient) ExecuteGithubApiCalls(stub func(string, string, string, []byte) ([]byte, error)) {
 	fake.executeGithubApiMutex.Lock()
 	defer fake.executeGithubApiMutex.Unlock()
 	fake.ExecuteGithubApiStub = stub
 }
 
-func (fake *FakeClient) ExecuteGithubApiArgsForCall(i int) (string, string, []byte) {
+func (fake *FakeClient) ExecuteGithubApiArgsForCall(i int) (string, string, string, []byte) {
 	fake.executeGithubApiMutex.RLock()
 	defer fake.executeGithubApiMutex.RUnlock()
 	argsForCall := fake.executeGithubApiArgsForCall[i]
-	return argsForCall.arg1, argsForCall.arg2, argsForCall.arg3
+	return argsForCall.arg1, argsForCall.arg2, argsForCall.arg3, argsForCall.arg4
 }
 
 func (fake *FakeClient) ExecuteGithubApiReturns(result1 []byte, result2 error) {

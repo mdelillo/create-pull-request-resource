@@ -16,15 +16,15 @@ type Repo struct {
 
 //go:generate go run github.com/maxbrunsfeld/counterfeiter/v6 . Client
 type Client interface {
-	ExecuteGithubApi(string, string, []byte) ([]byte, error)
+	ExecuteGithubApi(string, string, string, []byte) ([]byte, error)
 	ExecuteGithubCmd(...string) (string, error)
 }
 
 type GithubClient struct {}
 
-func (g GithubClient) ExecuteGithubApi(url string, authorizationHeaders string, body []byte) ([]byte, error) {
+func (g GithubClient) ExecuteGithubApi(url string, method string, authorizationHeaders string, body []byte) ([]byte, error) {
 
-	req, err := http.NewRequest("POST", url, bytes.NewBuffer(body))
+	req, err := http.NewRequest(method, url, bytes.NewBuffer(body))
 	req.Header.Set("Authorization", "token " + authorizationHeaders)
 	req.Header.Set("Content-Type", "application/json")
 	req.Header.Set("Accept", "application/vnd.github.v3+json")
