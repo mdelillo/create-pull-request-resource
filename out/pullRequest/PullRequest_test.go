@@ -43,7 +43,7 @@ it might also have / or \ `
 			assert.Equal(t, header, repo.AccessToken)
 
 			assert.EqualValues(t, paramForFirstCmd, []string{"-C", repo.Location, "checkout","-b", branchName})
-			assert.EqualValues(t, paramForSecondCmd, []string{"-C", repo.Location, "push", "origin", branchName})
+			assert.EqualValues(t, paramForSecondCmd, []string{"-C", repo.Location, "push", "https://123456789:x-oauth-basic@github.com/test/test.git", "--no-verify"})
 
 			assert.Equal(t, prNumber, 12345)
 			assert.Equal(t, jsonActualBody["title"], "A new PR")
@@ -72,7 +72,7 @@ it might also have / or \ `
 			assert.Equal(t, header, repo.AccessToken)
 
 			assert.EqualValues(t, paramForFirstCmd, []string{"-C", repo.Location, "checkout","-b", branchName})
-			assert.EqualValues(t, paramForSecondCmd, []string{"-C", repo.Location, "push", "origin", branchName})
+			assert.EqualValues(t, paramForSecondCmd, []string{"-C", repo.Location, "push",  "https://123456789:x-oauth-basic@github.com/test/test.git", "--no-verify"})
 
 			assert.Equal(t, jsonActualBody["title"], "Pull request by bot")
 			assert.Equal(t, prNumber, 12345)
@@ -101,7 +101,7 @@ it might also have / or \ `
 			assert.Equal(t, header, repo.AccessToken)
 
 			assert.EqualValues(t, paramForFirstCmd, []string{"-C", repo.Location, "checkout","-b", branchName})
-			assert.EqualValues(t, paramForSecondCmd, []string{"-C", repo.Location, "push", "origin", branchName})
+			assert.EqualValues(t, paramForSecondCmd, []string{"-C", repo.Location, "push",  "https://123456789:x-oauth-basic@github.com/test/test.git", "--no-verify"})
 
 			assert.Equal(t, prNumber, 12345)
 			assert.Equal(t, method, "POST")

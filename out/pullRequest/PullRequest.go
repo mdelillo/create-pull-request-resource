@@ -23,11 +23,11 @@ type Head struct{
 	SHA string `json:"sha"`
 }
 
-func NewPullRequest(descrption string, title string,base string,branchPrefix string,autoMerge bool) PullRequest {
+func NewPullRequest(description  string, title string,base string,branchPrefix string,autoMerge bool) PullRequest {
 
-	request := PullRequest{Description:descrption, Title:title, Base:base, BranchPrefix:branchPrefix, AutoMerge:autoMerge}
+	request := PullRequest{Description: description, Title:title, Base:base, BranchPrefix:branchPrefix, AutoMerge:autoMerge}
 
-	if descrption == "" {request.Description = "This is default description of the PR"}
+	if description == "" {request.Description = "This is default description of the PR"}
 	if title == "" {request.Title = "Pull request by bot"}
 	if base == "" {request.Base = "master"}
 	if branchPrefix == "" {request.BranchPrefix = "pr-by-bot"}
@@ -63,7 +63,7 @@ func (p PullRequest) createRemoteBranch(repo github.Repo, client github.Client) 
 		return branchName, fmt.Errorf("failed to checkout new branch %w: %s", err, output)
 	}
 
-	output, err = client.ExecuteGithubCmd("-C", repo.Location, "push", "origin" , branchName)
+	output, err = client.ExecuteGithubCmd("-C", repo.Location, "push", fmt.Sprintf("https://%s:x-oauth-basic@github.com/%s.git", repo.AccessToken, repo.Repository), "--no-verify")
 	if err != nil {
 		return branchName, fmt.Errorf("failed to push to new branch %w: %s", err, output)
 	}

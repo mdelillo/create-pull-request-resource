@@ -6,6 +6,7 @@ import (
 	"github.com/pivotal/create-pull-request-resource/out/pullRequest"
 	"log"
 	"os"
+	"path/filepath"
 )
 
 type Source struct {
@@ -41,7 +42,7 @@ func main() {
 	log.Println(os.Args[0])
 	log.Println(os.Args[1])
 
-	repo := github.Repo{AccessToken: request.Source.GithubToken, Repository: request.Source.RemoteRepository, Location: request.Source.RepoLocation}
+	repo := github.Repo{AccessToken: request.Source.GithubToken, Repository: request.Source.RemoteRepository, Location: filepath.Join(os.Args[1], request.Source.RepoLocation)}
 
 	newPullRequest := pullRequest.NewPullRequest(request.Source.Description, request.Source.Title, request.Source.Base, request.Source.BranchPrefix, request.Source.AutoMerge)
 
