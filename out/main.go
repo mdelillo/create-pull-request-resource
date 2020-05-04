@@ -9,13 +9,14 @@ import (
 )
 
 type Source struct {
-	GithubToken       	string `json:"github_token"`
-	Repository   		string `json:"repository"`
-	Base   				string `json:"base,omitempty"`
-	Description   		string `json:"description,omitempty"`
-	Title		   		string `json:"title,omitempty"`
-	BranchPrefix   	    string `json:"branch_prefix,omitempty"`
-	AutoMerge   		bool `json:"auto_merge,omitempty"`
+	GithubToken      string `json:"github_token"`
+	RemoteRepository string `json:"remote_repository"`
+	RepoLocation 	 string `json:"repo_location"`
+	Base             string `json:"base,omitempty"`
+	Description      string `json:"description,omitempty"`
+	Title            string `json:"title,omitempty"`
+	BranchPrefix     string `json:"branch_prefix,omitempty"`
+	AutoMerge        bool   `json:"auto_merge,omitempty"`
 }
 
 
@@ -34,14 +35,13 @@ func main() {
 	if err != nil {
 		log.Fatalf("failed to read request: %s", err.Error())
 	}
-	sourcePath := os.Args[1]
 
 	log.Println("starting to create PR ")
 	log.Println(request)
 	log.Println(os.Args[0])
 	log.Println(os.Args[1])
 
-	repo := github.Repo{AccessToken: request.Source.GithubToken, Repository: request.Source.Repository, Location: sourcePath}
+	repo := github.Repo{AccessToken: request.Source.GithubToken, Repository: request.Source.RemoteRepository, Location: request.Source.RepoLocation}
 
 	newPullRequest := pullRequest.NewPullRequest(request.Source.Description, request.Source.Title, request.Source.Base, request.Source.BranchPrefix, request.Source.AutoMerge)
 
