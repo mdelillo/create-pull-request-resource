@@ -15,6 +15,8 @@ RUN apt-get update \
       && DEBIAN_FRONTEND=noninteractive \
       apt-get install -y --no-install-recommends \
         ca-certificates \
+      && DEBIAN_FRONTEND=noninteractive \
+        apt-get install -y git \
       && rm -rf /var/lib/apt/lists/*
 COPY --from=builder assets/ /opt/resource/
 RUN chmod +x /opt/resource/*
