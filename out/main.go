@@ -24,7 +24,6 @@ type OutRequest struct {
 }
 
 func main() {
-	log.Println("starting to create PR ")
 	if len(os.Args) != 2 {
 		log.Println("usage:", os.Args[0],  "<sources directory>")
 		os.Exit(1)
@@ -36,6 +35,11 @@ func main() {
 		log.Fatalf("failed to read request: %s", err.Error())
 	}
 	sourcePath := os.Args[1]
+
+	log.Println("starting to create PR ")
+	log.Println(request)
+	log.Println(os.Args[0])
+	log.Println(os.Args[1])
 
 	repo := github.Repo{AccessToken: request.Source.GithubToken, Repository: request.Source.Repository, Location: sourcePath}
 
