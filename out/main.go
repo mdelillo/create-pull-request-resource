@@ -12,6 +12,8 @@ import (
 type Source struct {
 	GithubToken      string `json:"github_token"`
 	RemoteRepository string `json:"remote_repository"`
+}
+type Params struct {
 	RepoLocation 	 string `json:"repo_location"`
 	Base             string `json:"base,omitempty"`
 	Description      string `json:"description,omitempty"`
@@ -23,6 +25,7 @@ type Source struct {
 
 type OutRequest struct {
 	Source Source    `json:"source"`
+	Params Params    `json:"source"`
 }
 
 func main() {
@@ -38,13 +41,10 @@ func main() {
 	}
 
 	log.Println("starting to create PR ")
-	log.Println(request)
-	log.Println(os.Args[0])
-	log.Println(os.Args[1])
 
-	repo := github.Repo{AccessToken: request.Source.GithubToken, Repository: request.Source.RemoteRepository, Location: filepath.Join(os.Args[1], request.Source.RepoLocation)}
+	repo := github.Repo{AccessToken: request.Source.GithubToken, Repository: request.Source.RemoteRepository, Location: filepath.Join(os.Args[1], request.Params.RepoLocation)}
 
-	newPullRequest := pullRequest.NewPullRequest(request.Source.Description, request.Source.Title, request.Source.Base, request.Source.BranchPrefix, request.Source.AutoMerge)
+	newPullRequest := pullRequest.NewPullRequest(request.Params.Description, request.Params.Title, request.Params.Base, request.Params.BranchPrefix, request.Params.AutoMerge)
 
 	branchName, prNumber, err := newPullRequest.CreatePullRequest(repo, github.GithubClient{})
 	if err != nil {
