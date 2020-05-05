@@ -3,7 +3,6 @@ package check
 import (
 	"encoding/json"
 	"fmt"
-	"log"
 	"os"
 )
 
@@ -13,10 +12,7 @@ func main() {
 		os.Exit(1)
 	}
 
-	err := json.NewDecoder(os.Stdin)
-	if err != nil {
-		log.Fatalf("failed to read request: %s", err)
-	}
+	json.NewDecoder(os.Stdin)
 	checkPutResponse := fmt.Sprintf(`{"checkImplemented":"no"}`)
 	fmt.Println(string(checkPutResponse))
 }
