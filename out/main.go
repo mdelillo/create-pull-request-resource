@@ -46,6 +46,17 @@ func main() {
 
 	newPullRequest := pullRequest.NewPullRequest(request.Params.Description, request.Params.Title, request.Params.Base, request.Params.BranchPrefix, request.Params.AutoMerge)
 
+	log.Println("values are")
+	log.Println(repo.Location)
+	log.Println(repo.Repository)
+	log.Println(repo.AccessToken)
+	log.Println(newPullRequest.AutoMerge)
+	log.Println(newPullRequest.Title)
+	log.Println(newPullRequest.Description)
+	log.Println(newPullRequest.BranchPrefix)
+	log.Println(newPullRequest.Base)
+	log.Println("^^^^^^^^^^^^^^^^^^^^^^^^^^^^^")
+
 	branchName, prNumber, err := newPullRequest.CreatePullRequest(repo, github.GithubClient{})
 	if err != nil {
 		log.Println(err.Error())
