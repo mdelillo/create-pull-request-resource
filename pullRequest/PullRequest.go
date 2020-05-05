@@ -3,7 +3,8 @@ package pullRequest
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/pivotal/create-pull-request-resource/out/github"
+	. "github.com/pivotal/create-pull-request-resource"
+	"github.com/pivotal/create-pull-request-resource/github"
 	"time"
 )
 
@@ -15,13 +16,6 @@ type PullRequest struct {
 	AutoMerge    bool
 }
 
-type PrRespeonse struct {
-	Number int  `json:"number"`
-	Head   Head `json:"head"`
-}
-type Head struct{
-	SHA string `json:"sha"`
-}
 
 func NewPullRequest(description  string, title string,base string,branchPrefix string,autoMerge bool) PullRequest {
 
@@ -83,7 +77,6 @@ func (p PullRequest) createPullRequestFor(branchName string, repo github.Repo, c
 	if err != nil {
 		return PrRespeonse{}, fmt.Errorf("failed to POST a pull request %w %s", err, apiOutput)
 	}
-
 
 	var pullRequestContent PrRespeonse
 	err = json.Unmarshal(apiOutput, &pullRequestContent)

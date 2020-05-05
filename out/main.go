@@ -3,31 +3,13 @@ package main
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/pivotal/create-pull-request-resource/out/github"
-	"github.com/pivotal/create-pull-request-resource/out/pullRequest"
+	. "github.com/pivotal/create-pull-request-resource"
+	"github.com/pivotal/create-pull-request-resource/github"
+	"github.com/pivotal/create-pull-request-resource/pullRequest"
 	"log"
 	"os"
 	"path/filepath"
 )
-
-type Source struct {
-	GithubToken      string `json:"github_token"`
-	RemoteRepository string `json:"remote_repository"`
-}
-type Params struct {
-	RepoLocation 	 string `json:"repo_location"`
-	Base             string `json:"base,omitempty"`
-	Description      string `json:"description,omitempty"`
-	Title            string `json:"title,omitempty"`
-	BranchPrefix     string `json:"branch_prefix,omitempty"`
-	AutoMerge        bool   `json:"auto_merge,omitempty"`
-}
-
-
-type OutRequest struct {
-	Source Source    `json:"source"`
-	Params Params    `json:"params"`
-}
 
 func main() {
 	if len(os.Args) != 2 {
@@ -50,6 +32,6 @@ func main() {
 		log.Println(err.Error())
 		os.Exit(1)
 	}
-	outPutResponse := fmt.Sprintf(`{"breanchName":"%s","prNumber":%d,"merged":"%t"}`, branchName, prNumber, newPullRequest.AutoMerge)
+	outPutResponse := fmt.Sprintf(`{ "version": { "ref": "%d" },"metadata": [{"breanchName":"%s","prNumber":%d,"merged":"%t"}]}`, prNumber, branchName, prNumber, newPullRequest.AutoMerge)
 	fmt.Println(string(outPutResponse))
 }

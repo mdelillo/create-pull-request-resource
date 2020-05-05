@@ -4,7 +4,7 @@ package githubfakes
 import (
 	"sync"
 
-	"github.com/pivotal/create-pull-request-resource/out/github"
+	"github.com/pivotal/create-pull-request-resource/github"
 )
 
 type FakeClient struct {

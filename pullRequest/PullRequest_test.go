@@ -3,8 +3,8 @@ package pullRequest
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/pivotal/create-pull-request-resource/out/github"
-	fakes "github.com/pivotal/create-pull-request-resource/out/github/githubfakes"
+	"github.com/pivotal/create-pull-request-resource/github"
+	fakes "github.com/pivotal/create-pull-request-resource/github/githubfakes"
 	"github.com/sclevine/spec"
 	"github.com/sclevine/spec/report"
 	"github.com/stretchr/testify/assert"

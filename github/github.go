@@ -55,3 +55,18 @@ func (g GithubClient) ExecuteGithubCmd(param ...string) (string, error){
 
 	return string(output), nil
 }
+
+func (g GithubClient) ExecuteGithubGetApi(url string, token string) ([]byte, error) {
+	resp, err := http.Get(url)
+	if err != nil {
+		return nil, fmt.Errorf("failed to execute git get call %w", err)
+	}
+
+	body, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		return nil, fmt.Errorf("failed to read from git api call %w", err)
+	}
+
+	return body, nil
+
+}
