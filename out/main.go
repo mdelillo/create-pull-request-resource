@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/json"
+	"fmt"
 	"github.com/pivotal/create-pull-request-resource/out/github"
 	"github.com/pivotal/create-pull-request-resource/out/pullRequest"
 	"log"
@@ -40,31 +41,15 @@ func main() {
 		log.Fatalf("failed to read request: %s", err.Error())
 	}
 
-	log.Println("starting to create PR ")
-
 	repo := github.Repo{AccessToken: request.Source.GithubToken, Repository: request.Source.RemoteRepository, Location: filepath.Join(os.Args[1], request.Params.RepoLocation)}
 
 	newPullRequest := pullRequest.NewPullRequest(request.Params.Description, request.Params.Title, request.Params.Base, request.Params.BranchPrefix, request.Params.AutoMerge)
-
-	log.Println("values are")
-	log.Println(repo.Location)
-	log.Println(repo.Repository)
-	log.Println(repo.AccessToken)
-	log.Println(newPullRequest.AutoMerge)
-	log.Println(newPullRequest.Title)
-	log.Println(newPullRequest.Description)
-	log.Println(newPullRequest.BranchPrefix)
-	log.Println(newPullRequest.Base)
-	log.Println("^^^^^^^^^^^^^^^^^^^^^^^^^^^^^")
 
 	branchName, prNumber, err := newPullRequest.CreatePullRequest(repo, github.GithubClient{})
 	if err != nil {
 		log.Println(err.Error())
 		os.Exit(1)
 	}
-
-	log.Println("created a PR with Branch name:", branchName, "and pull request number", prNumber)
-	if newPullRequest.AutoMerge {
-		log.Println("Merged the Pull Request", prNumber)
-	}
+	outPutResponse := fmt.Sprintf(`{"breanchName":"%s","prNumber":%d,"merged":"%t"}`, branchName, prNumber, newPullRequest.AutoMerge)
+	fmt.Println(string(outPutResponse))
 }
