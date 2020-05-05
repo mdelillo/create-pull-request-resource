@@ -32,6 +32,11 @@ The get script is only implemented to work alongside of put script. Thus no para
 ## Example
 
 ```yaml
+resource_types:
+- name: create-pull-request-resource
+  type: docker-image
+  source:
+    repository: cfbuildpacks/create-pull-request-resource
 resources:
 - name: repo-name
   type: git
