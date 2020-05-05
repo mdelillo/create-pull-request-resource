@@ -1,7 +1,6 @@
 package main
 
 import (
-	"bufio"
 	"encoding/json"
 	"github.com/pivotal/create-pull-request-resource/out/github"
 	"github.com/pivotal/create-pull-request-resource/out/pullRequest"
@@ -33,15 +32,6 @@ func main() {
 	if len(os.Args) != 2 {
 		log.Println("usage:", os.Args[0],  "<sources directory>")
 		os.Exit(1)
-	}
-
-	scanner := bufio.NewScanner(os.Stdin)
-	for scanner.Scan() {
-		log.Println(scanner.Text())
-	}
-
-	if err := scanner.Err(); err != nil {
-		log.Println(err)
 	}
 
 	var request OutRequest
