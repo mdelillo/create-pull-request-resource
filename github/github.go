@@ -33,14 +33,14 @@ func (g GithubClient) ExecuteGithubApi(url string, method string, authorizationH
 	client := &http.Client{}
 	resp, err := client.Do(req)
 	if err != nil {
-		return nil, fmt.Errorf("failed to execute git api command %w", removeSecretsFromOutputs(err.Error(), authorizationHeaders))
+		return nil, fmt.Errorf("failed to execute git api command %s", removeSecretsFromOutputs(err.Error(), authorizationHeaders))
 	}
 
 	defer resp.Body.Close()
 
 	response, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
-		return nil, fmt.Errorf("failed to read from git api command %w: %s", removeSecretsFromOutputs(err.Error(), authorizationHeaders), removeSecretsFromOutputs(string(response), authorizationHeaders))
+		return nil, fmt.Errorf("failed to read from git api command %s: %s", removeSecretsFromOutputs(err.Error(), authorizationHeaders), removeSecretsFromOutputs(string(response), authorizationHeaders))
 	}
 
 	return response, nil
