@@ -6,6 +6,7 @@ import (
 	"io/ioutil"
 	"net/http"
 	"os/exec"
+	"strings"
 )
 
 type Repo struct {
@@ -32,19 +33,22 @@ func (g GithubClient) ExecuteGithubApi(url string, method string, authorizationH
 	client := &http.Client{}
 	resp, err := client.Do(req)
 	if err != nil {
-		return nil, fmt.Errorf("failed to execute git api command %w", err)
+		return nil, fmt.Errorf("failed to execute git api command %w", removeSecretsFromOutputs(err.Error(), authorizationHeaders))
 	}
 
 	defer resp.Body.Close()
 
 	response, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
-		return nil, fmt.Errorf("failed to read from git api command %w: %s", err, response)
+		return nil, fmt.Errorf("failed to read from git api command %w: %s", removeSecretsFromOutputs(err.Error(), authorizationHeaders), removeSecretsFromOutputs(string(response), authorizationHeaders))
 	}
 
 	return response, nil
 }
 
+func removeSecretsFromOutputs(content string, secret string) string {
+	return strings.Replace(content, secret, "<auth-token>", -1)
+}
 
 func (g GithubClient) ExecuteGithubCmd(param ...string) (string, error){
 
