@@ -1,6 +1,6 @@
 ## Github create pull resource resource
 
-Custom concourse resource to create a pull request. It expects 
+Custom concourse resource to create a pull request. It expects a git repo with local commit which this resource will consume and create a new branch and use that to create a pull request. There is also an option to auto-merge to pull request. 
 
 ## Source Configuration
 
