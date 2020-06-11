@@ -16,11 +16,14 @@ func TestCreatePullRequestTask(t *testing.T) {
 }
 
 func testCreatePullRequestTask(t *testing.T, when spec.G, it spec.S) {
+	var fakeClient *fakes.FakeClient
+
+	it.Before(func() {
+		fakeClient = &fakes.FakeClient{}
+	})
+
 	when("auto merge is false", func() {
 		it("make a branch and push to remote", func() {
-			var fakeClient *fakes.FakeClient
-			fakeClient = &fakes.FakeClient{}
-
 			description := `this is the description of the PR
 	it may have new lines and
 	differennt @ or # kind of characters
@@ -53,9 +56,6 @@ func testCreatePullRequestTask(t *testing.T, when spec.G, it spec.S) {
 			assert.Equal(t, jsonActualBody["head"], "test-org:"+branchName)
 		})
 		it("apply the default values if not provided", func() {
-			var fakeClient *fakes.FakeClient
-			fakeClient = &fakes.FakeClient{}
-
 			pr := NewPullRequest("", "", "", "", false)
 			fakeClient.ExecuteGithubApiReturnsOnCall(0, []byte(`{"number":12345,"head":{"sha":"somesha"}}`), nil)
 
@@ -84,9 +84,6 @@ func testCreatePullRequestTask(t *testing.T, when spec.G, it spec.S) {
 			assert.Equal(t, jsonActualBody["head"], "test-org:"+branchName)
 		})
 		it("apply the few default values if not provided", func() {
-			var fakeClient *fakes.FakeClient
-			fakeClient = &fakes.FakeClient{}
-
 			pr := NewPullRequest("This is the description of new PR by test", "Changing the version string to 12 from 14", "", "", false)
 			fakeClient.ExecuteGithubApiReturnsOnCall(0, []byte(`{"number":12345,"head":{"sha":"somesha"}}`), nil)
 
@@ -118,9 +115,6 @@ func testCreatePullRequestTask(t *testing.T, when spec.G, it spec.S) {
 	})
 	when("auto merge is true", func() {
 		it("make a branch and push to remote", func() {
-			var fakeClient *fakes.FakeClient
-			fakeClient = &fakes.FakeClient{}
-
 			description := `this is the description of the PR
 	it may have new lines and
 	differennt @ or # kind of characters
@@ -151,9 +145,6 @@ func testCreatePullRequestTask(t *testing.T, when spec.G, it spec.S) {
 	})
 	when("the forked repository is not empty", func() {
 		it("pushes the branch to the remote repository and makes the PR from there", func() {
-			var fakeClient *fakes.FakeClient
-			fakeClient = &fakes.FakeClient{}
-
 			remoteRepo := "test-org/test"
 			forkedRepo := "fork-user/test"
 			location := "some-location"
@@ -187,6 +178,19 @@ it might also have / or \ `
 			assert.Equal(t, jsonActualBody["body"], description)
 			assert.Equal(t, jsonActualBody["base"], "master")
 			assert.Equal(t, jsonActualBody["head"], "fork-user:"+branchName)
+		})
+	})
+	when("pushing the branch fails", func() {
+		it("does not show the token in the error message", func() {
+			accessToken := "some-access-token"
+
+			fakeClient.ExecuteGithubCmdReturnsOnCall(1, "", fmt.Errorf("error which includes token %s", accessToken))
+
+			pr := NewPullRequest("", "", "", "", false)
+			_, _, err := pr.CreatePullRequest("", "", "", accessToken, fakeClient)
+
+			require.Error(t, err)
+			assert.NotContains(t, err.Error(), accessToken)
 		})
 	})
 }

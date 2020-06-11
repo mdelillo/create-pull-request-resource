@@ -72,7 +72,8 @@ func (p PullRequest) createRemoteBranch(repo, location, accessToken string, clie
 
 	output, err = client.ExecuteGithubCmd("-C", location, "push", fmt.Sprintf("https://%s:x-oauth-basic@github.com/%s.git", accessToken, repo), "--no-verify")
 	if err != nil {
-		return branchName, fmt.Errorf("failed to push to new branch %w: %s", err, output)
+		redactedErr := strings.ReplaceAll(err.Error(), accessToken, "<redacted-token>")
+		return branchName, fmt.Errorf("failed to push to new branch: %s: %s", redactedErr, output)
 	}
 	return branchName, nil
 }
