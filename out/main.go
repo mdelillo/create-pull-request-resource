@@ -23,11 +23,12 @@ func main() {
 		log.Fatalf("failed to read request: %s", err.Error())
 	}
 
-	repo := github.Repo{AccessToken: request.Source.GithubToken, Repository: request.Source.RemoteRepository, Location: filepath.Join(os.Args[1], request.Params.RepoLocation)}
+	remoteRepo := github.Repo{AccessToken: request.Source.GithubToken, Repository: request.Source.RemoteRepository, Location: filepath.Join(os.Args[1], request.Params.RepoLocation)}
+	forkedRepo := github.Repo{AccessToken: request.Source.GithubToken, Repository: request.Source.ForkedRepository, Location: filepath.Join(os.Args[1], request.Params.RepoLocation)}
 
 	newPullRequest := pullRequest.NewPullRequest(request.Params.Description, request.Params.Title, request.Params.Base, request.Params.BranchPrefix, request.Params.AutoMerge)
 
-	branchName, prNumber, err := newPullRequest.CreatePullRequest(repo, github.GithubClient{})
+	branchName, prNumber, err := newPullRequest.CreatePullRequest(remoteRepo, forkedRepo, github.GithubClient{})
 	if err != nil {
 		log.Println(err.Error())
 		os.Exit(1)

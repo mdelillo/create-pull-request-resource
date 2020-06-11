@@ -5,6 +5,7 @@ import (
 	"fmt"
 	. "github.com/pivotal/create-pull-request-resource"
 	"github.com/pivotal/create-pull-request-resource/github"
+	"strings"
 	"time"
 )
 
@@ -36,18 +37,26 @@ func NewPullRequest(description string, title string, base string, branchPrefix 
 	return request
 }
 
-func (p PullRequest) CreatePullRequest(repo github.Repo, client github.Client) (string, int, error) {
-	branchName, err := p.createRemoteBranch(repo, client)
+func (p PullRequest) CreatePullRequest(remoteRepo, forkedRepo github.Repo, client github.Client) (string, int, error) {
+	var sourceRepo github.Repo
+	if forkedRepo.Repository == "" {
+		sourceRepo = remoteRepo
+	} else {
+		sourceRepo = forkedRepo
+	}
+
+	branchName, err := p.createRemoteBranch(sourceRepo, client)
 	if err != nil {
 		return branchName, 0, fmt.Errorf("failed to create a reamote branch with name %s %w", branchName, err)
 	}
-	prResponse, err := p.createPullRequestFor(branchName, repo, client)
+
+	prResponse, err := p.createPullRequestFor(branchName, sourceRepo, remoteRepo, client)
 	if err != nil {
 		return branchName, 0, fmt.Errorf("failed to create a pull request %w", err)
 	}
 
 	if p.AutoMerge {
-		output, err := p.mergePullRequest(prResponse, repo, client)
+		output, err := p.mergePullRequest(prResponse, remoteRepo, client)
 		if err != nil {
 			return branchName, 0, fmt.Errorf("failed to merge a pull request %w %s", err, output)
 		}
@@ -71,16 +80,18 @@ func (p PullRequest) createRemoteBranch(repo github.Repo, client github.Client) 
 	return branchName, nil
 }
 
-func (p PullRequest) createPullRequestFor(branchName string, repo github.Repo, client github.Client) (PrRespeonse, error) {
-	url := fmt.Sprintf("https://api.github.com/repos/%s/pulls", repo.Repository)
+func (p PullRequest) createPullRequestFor(branchName string, sourceRepo, remoteRepo github.Repo, client github.Client) (PrRespeonse, error) {
+	url := fmt.Sprintf("https://api.github.com/repos/%s/pulls", remoteRepo.Repository)
 
+	githubUser := strings.Split(sourceRepo.Repository, "/")[0]
+	branchName = fmt.Sprintf("%s:%s", githubUser, branchName)
 	body, _ := json.Marshal(map[string]string{
 		"title": p.Title,
 		"body":  p.Description,
 		"head":  branchName,
 		"base":  p.Base,
 	})
-	apiOutput, err := client.ExecuteGithubApi(url, "POST", repo.AccessToken, body)
+	apiOutput, err := client.ExecuteGithubApi(url, "POST", remoteRepo.AccessToken, body)
 	if err != nil {
 		return PrRespeonse{}, fmt.Errorf("failed to POST a pull request %w %s", err, apiOutput)
 	}

@@ -3,6 +3,7 @@ package utils
 type Source struct {
 	GithubToken      string `json:"github_token"`
 	RemoteRepository string `json:"remote_repository"`
+	ForkedRepository string `json:"forked_repository"`
 }
 type Params struct {
 	RepoLocation string `json:"repo_location,omitempty"`
