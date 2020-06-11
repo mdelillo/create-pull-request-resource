@@ -37,26 +37,24 @@ func NewPullRequest(description string, title string, base string, branchPrefix 
 	return request
 }
 
-func (p PullRequest) CreatePullRequest(remoteRepo, forkedRepo github.Repo, client github.Client) (string, int, error) {
-	var sourceRepo github.Repo
-	if forkedRepo.Repository == "" {
-		sourceRepo = remoteRepo
-	} else {
+func (p PullRequest) CreatePullRequest(remoteRepo, forkedRepo, location, accessToken string, client github.Client) (string, int, error) {
+	sourceRepo := remoteRepo
+	if forkedRepo != "" {
 		sourceRepo = forkedRepo
 	}
 
-	branchName, err := p.createRemoteBranch(sourceRepo, client)
+	branchName, err := p.createRemoteBranch(sourceRepo, location, accessToken, client)
 	if err != nil {
 		return branchName, 0, fmt.Errorf("failed to create a reamote branch with name %s %w", branchName, err)
 	}
 
-	prResponse, err := p.createPullRequestFor(branchName, sourceRepo, remoteRepo, client)
+	prResponse, err := p.createPullRequestFor(branchName, sourceRepo, remoteRepo, accessToken, client)
 	if err != nil {
 		return branchName, 0, fmt.Errorf("failed to create a pull request %w", err)
 	}
 
 	if p.AutoMerge {
-		output, err := p.mergePullRequest(prResponse, remoteRepo, client)
+		output, err := p.mergePullRequest(prResponse, remoteRepo, accessToken, client)
 		if err != nil {
 			return branchName, 0, fmt.Errorf("failed to merge a pull request %w %s", err, output)
 		}
@@ -64,26 +62,25 @@ func (p PullRequest) CreatePullRequest(remoteRepo, forkedRepo github.Repo, clien
 	return branchName, prResponse.Number, nil
 }
 
-func (p PullRequest) createRemoteBranch(repo github.Repo, client github.Client) (string, error) {
-
+func (p PullRequest) createRemoteBranch(repo, location, accessToken string, client github.Client) (string, error) {
 	branchName := fmt.Sprintf("%s-%d", p.BranchPrefix, time.Now().Unix())
 
-	output, err := client.ExecuteGithubCmd("-C", repo.Location, "checkout", "-b", branchName)
+	output, err := client.ExecuteGithubCmd("-C", location, "checkout", "-b", branchName)
 	if err != nil {
 		return branchName, fmt.Errorf("failed to checkout new branch %w: %s", err, output)
 	}
 
-	output, err = client.ExecuteGithubCmd("-C", repo.Location, "push", fmt.Sprintf("https://%s:x-oauth-basic@github.com/%s.git", repo.AccessToken, repo.Repository), "--no-verify")
+	output, err = client.ExecuteGithubCmd("-C", location, "push", fmt.Sprintf("https://%s:x-oauth-basic@github.com/%s.git", accessToken, repo), "--no-verify")
 	if err != nil {
 		return branchName, fmt.Errorf("failed to push to new branch %w: %s", err, output)
 	}
 	return branchName, nil
 }
 
-func (p PullRequest) createPullRequestFor(branchName string, sourceRepo, remoteRepo github.Repo, client github.Client) (PrRespeonse, error) {
-	url := fmt.Sprintf("https://api.github.com/repos/%s/pulls", remoteRepo.Repository)
+func (p PullRequest) createPullRequestFor(branchName string, sourceRepo, remoteRepo, accessToken string, client github.Client) (PrRespeonse, error) {
+	url := fmt.Sprintf("https://api.github.com/repos/%s/pulls", remoteRepo)
 
-	githubUser := strings.Split(sourceRepo.Repository, "/")[0]
+	githubUser := strings.Split(sourceRepo, "/")[0]
 	branchName = fmt.Sprintf("%s:%s", githubUser, branchName)
 	body, _ := json.Marshal(map[string]string{
 		"title": p.Title,
@@ -91,7 +88,7 @@ func (p PullRequest) createPullRequestFor(branchName string, sourceRepo, remoteR
 		"head":  branchName,
 		"base":  p.Base,
 	})
-	apiOutput, err := client.ExecuteGithubApi(url, "POST", remoteRepo.AccessToken, body)
+	apiOutput, err := client.ExecuteGithubApi(url, "POST", accessToken, body)
 	if err != nil {
 		return PrRespeonse{}, fmt.Errorf("failed to POST a pull request %w %s", err, apiOutput)
 	}
@@ -105,15 +102,15 @@ func (p PullRequest) createPullRequestFor(branchName string, sourceRepo, remoteR
 	return pullRequestContent, nil
 }
 
-func (p PullRequest) mergePullRequest(prResponse PrRespeonse, repo github.Repo, client github.Client) ([]byte, error) {
-	url := fmt.Sprintf("https://api.github.com/repos/%s/pulls/%d/merge", repo.Repository, prResponse.Number)
+func (p PullRequest) mergePullRequest(prResponse PrRespeonse, repo, accessToken string, client github.Client) ([]byte, error) {
+	url := fmt.Sprintf("https://api.github.com/repos/%s/pulls/%d/merge", repo, prResponse.Number)
 
 	body, _ := json.Marshal(map[string]string{
 		"commit_title":   fmt.Sprintf("Auto merge pull request %d", prResponse.Number),
 		"commit_message": "",
 		"sha":            prResponse.Head.SHA,
 	})
-	apiOutput, err := client.ExecuteGithubApi(url, "PUT", repo.AccessToken, body)
+	apiOutput, err := client.ExecuteGithubApi(url, "PUT", accessToken, body)
 	if err != nil {
 		return nil, fmt.Errorf("failed to PULL merge for pull request ID %d: %w \n %s", prResponse.Number, err, apiOutput)
 	}

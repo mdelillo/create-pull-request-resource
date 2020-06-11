@@ -3,7 +3,6 @@ package pullRequest
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/pivotal/create-pull-request-resource/github"
 	fakes "github.com/pivotal/create-pull-request-resource/github/githubfakes"
 	"github.com/sclevine/spec"
 	"github.com/sclevine/spec/report"
@@ -22,15 +21,17 @@ func testCreatePullRequestTask(t *testing.T, when spec.G, it spec.S) {
 			var fakeClient *fakes.FakeClient
 			fakeClient = &fakes.FakeClient{}
 
-			repo := github.Repo{"test-org/test", "artifacts", "123456789"}
 			description := `this is the description of the PR
-it may have new lines and 
-differennt @ or # kind of characters
-it might also have / or \ `
+	it may have new lines and
+	differennt @ or # kind of characters
+	it might also have / or \ `
 			pr := NewPullRequest(description, "A new PR", "master", "pr-by-test", false)
 			fakeClient.ExecuteGithubApiReturnsOnCall(0, []byte(`{"number":12345,"head":{"sha":"somesha"}}`), nil)
 
-			branchName, prNumber, err := pr.CreatePullRequest(repo, github.Repo{}, fakeClient)
+			repo := "test-org/test"
+			location := "artifacts"
+			accessToken := "123456789"
+			branchName, prNumber, err := pr.CreatePullRequest(repo, "", location, accessToken, fakeClient)
 			require.NoError(t, err)
 
 			paramForFirstCmd := fakeClient.ExecuteGithubCmdArgsForCall(0)
@@ -39,11 +40,11 @@ it might also have / or \ `
 			var jsonActualBody map[string]string
 			json.Unmarshal(body, &jsonActualBody)
 
-			assert.Equal(t, url, fmt.Sprintf("https://api.github.com/repos/%s/pulls", repo.Repository))
-			assert.Equal(t, header, repo.AccessToken)
+			assert.Equal(t, url, fmt.Sprintf("https://api.github.com/repos/%s/pulls", repo))
+			assert.Equal(t, header, accessToken)
 
-			assert.EqualValues(t, paramForFirstCmd, []string{"-C", repo.Location, "checkout", "-b", branchName})
-			assert.EqualValues(t, paramForSecondCmd, []string{"-C", repo.Location, "push", "https://123456789:x-oauth-basic@github.com/test-org/test.git", "--no-verify"})
+			assert.EqualValues(t, paramForFirstCmd, []string{"-C", location, "checkout", "-b", branchName})
+			assert.EqualValues(t, paramForSecondCmd, []string{"-C", location, "push", "https://123456789:x-oauth-basic@github.com/test-org/test.git", "--no-verify"})
 
 			assert.Equal(t, prNumber, 12345)
 			assert.Equal(t, jsonActualBody["title"], "A new PR")
@@ -55,11 +56,13 @@ it might also have / or \ `
 			var fakeClient *fakes.FakeClient
 			fakeClient = &fakes.FakeClient{}
 
-			repo := github.Repo{"test-org/test", "artifacts", "123456789"}
 			pr := NewPullRequest("", "", "", "", false)
 			fakeClient.ExecuteGithubApiReturnsOnCall(0, []byte(`{"number":12345,"head":{"sha":"somesha"}}`), nil)
 
-			branchName, prNumber, err := pr.CreatePullRequest(repo, github.Repo{}, fakeClient)
+			repo := "test-org/test"
+			location := "artifacts"
+			accessToken := "123456789"
+			branchName, prNumber, err := pr.CreatePullRequest(repo, "", location, accessToken, fakeClient)
 			require.NoError(t, err)
 
 			paramForFirstCmd := fakeClient.ExecuteGithubCmdArgsForCall(0)
@@ -68,11 +71,11 @@ it might also have / or \ `
 			var jsonActualBody map[string]string
 			json.Unmarshal(body, &jsonActualBody)
 
-			assert.Equal(t, url, fmt.Sprintf("https://api.github.com/repos/%s/pulls", repo.Repository))
-			assert.Equal(t, header, repo.AccessToken)
+			assert.Equal(t, url, fmt.Sprintf("https://api.github.com/repos/%s/pulls", repo))
+			assert.Equal(t, header, accessToken)
 
-			assert.EqualValues(t, paramForFirstCmd, []string{"-C", repo.Location, "checkout", "-b", branchName})
-			assert.EqualValues(t, paramForSecondCmd, []string{"-C", repo.Location, "push", "https://123456789:x-oauth-basic@github.com/test-org/test.git", "--no-verify"})
+			assert.EqualValues(t, paramForFirstCmd, []string{"-C", location, "checkout", "-b", branchName})
+			assert.EqualValues(t, paramForSecondCmd, []string{"-C", location, "push", "https://123456789:x-oauth-basic@github.com/test-org/test.git", "--no-verify"})
 
 			assert.Equal(t, jsonActualBody["title"], "Pull request by bot")
 			assert.Equal(t, prNumber, 12345)
@@ -84,11 +87,13 @@ it might also have / or \ `
 			var fakeClient *fakes.FakeClient
 			fakeClient = &fakes.FakeClient{}
 
-			repo := github.Repo{"test-org/test", "artifacts", "123456789"}
 			pr := NewPullRequest("This is the description of new PR by test", "Changing the version string to 12 from 14", "", "", false)
 			fakeClient.ExecuteGithubApiReturnsOnCall(0, []byte(`{"number":12345,"head":{"sha":"somesha"}}`), nil)
 
-			branchName, prNumber, err := pr.CreatePullRequest(repo, github.Repo{}, fakeClient)
+			repo := "test-org/test"
+			location := "artifacts"
+			accessToken := "123456789"
+			branchName, prNumber, err := pr.CreatePullRequest(repo, "", location, accessToken, fakeClient)
 			require.NoError(t, err)
 
 			paramForFirstCmd := fakeClient.ExecuteGithubCmdArgsForCall(0)
@@ -97,11 +102,11 @@ it might also have / or \ `
 			var jsonActualBody map[string]string
 			json.Unmarshal(body, &jsonActualBody)
 
-			assert.Equal(t, url, fmt.Sprintf("https://api.github.com/repos/%s/pulls", repo.Repository))
-			assert.Equal(t, header, repo.AccessToken)
+			assert.Equal(t, url, fmt.Sprintf("https://api.github.com/repos/%s/pulls", repo))
+			assert.Equal(t, header, accessToken)
 
-			assert.EqualValues(t, paramForFirstCmd, []string{"-C", repo.Location, "checkout", "-b", branchName})
-			assert.EqualValues(t, paramForSecondCmd, []string{"-C", repo.Location, "push", "https://123456789:x-oauth-basic@github.com/test-org/test.git", "--no-verify"})
+			assert.EqualValues(t, paramForFirstCmd, []string{"-C", location, "checkout", "-b", branchName})
+			assert.EqualValues(t, paramForSecondCmd, []string{"-C", location, "push", "https://123456789:x-oauth-basic@github.com/test-org/test.git", "--no-verify"})
 
 			assert.Equal(t, prNumber, 12345)
 			assert.Equal(t, method, "POST")
@@ -116,24 +121,26 @@ it might also have / or \ `
 			var fakeClient *fakes.FakeClient
 			fakeClient = &fakes.FakeClient{}
 
-			repo := github.Repo{"test-org/test", "artifacts", "123456789"}
 			description := `this is the description of the PR
-it may have new lines and 
-differennt @ or # kind of characters
-it might also have / or \ `
+	it may have new lines and
+	differennt @ or # kind of characters
+	it might also have / or \ `
 			pr := NewPullRequest(description, "A new PR", "master", "pr-by-test", true)
 
 			fakeClient.ExecuteGithubApiReturnsOnCall(0, []byte(`{"number":12345,"head":{"sha":"somesha"}}`), nil)
 
-			_, prNumber, err := pr.CreatePullRequest(repo, github.Repo{}, fakeClient)
+			repo := "test-org/test"
+			location := "artifacts"
+			accessToken := "123456789"
+			_, prNumber, err := pr.CreatePullRequest(repo, "", location, accessToken, fakeClient)
 			require.NoError(t, err)
 
 			url, method, header, body := fakeClient.ExecuteGithubApiArgsForCall(1)
 			var jsonActualBody map[string]string
 			json.Unmarshal(body, &jsonActualBody)
 
-			assert.Equal(t, url, fmt.Sprintf("https://api.github.com/repos/%s/pulls/%s/merge", repo.Repository, "12345"))
-			assert.Equal(t, header, repo.AccessToken)
+			assert.Equal(t, url, fmt.Sprintf("https://api.github.com/repos/%s/pulls/%s/merge", repo, "12345"))
+			assert.Equal(t, header, accessToken)
 
 			assert.Equal(t, prNumber, 12345)
 			assert.Equal(t, method, "PUT")
@@ -147,8 +154,10 @@ it might also have / or \ `
 			var fakeClient *fakes.FakeClient
 			fakeClient = &fakes.FakeClient{}
 
-			remoteRepo := github.Repo{"test-org/test", "artifacts", "access-token-for-remote-repo"}
-			forkedRepo := github.Repo{"fork-user/test", "artifacts", "access-token-for-forked-repo"}
+			remoteRepo := "test-org/test"
+			forkedRepo := "fork-user/test"
+			location := "some-location"
+			accessToken := "some-access-token"
 			description := `this is the description of the PR
 it may have new lines and 
 differennt @ or # kind of characters
@@ -156,7 +165,7 @@ it might also have / or \ `
 			pr := NewPullRequest(description, "A new PR", "master", "pr-by-test", false)
 			fakeClient.ExecuteGithubApiReturnsOnCall(0, []byte(`{"number":12345,"head":{"sha":"somesha"}}`), nil)
 
-			branchName, prNumber, err := pr.CreatePullRequest(remoteRepo, forkedRepo, fakeClient)
+			branchName, prNumber, err := pr.CreatePullRequest(remoteRepo, forkedRepo, location, accessToken, fakeClient)
 			require.NoError(t, err)
 
 			assert.Regexp(t, "^pr-by-test-.*$", branchName)
@@ -167,11 +176,11 @@ it might also have / or \ `
 			var jsonActualBody map[string]string
 			json.Unmarshal(body, &jsonActualBody)
 
-			assert.Equal(t, url, fmt.Sprintf("https://api.github.com/repos/%s/pulls", remoteRepo.Repository))
-			assert.Equal(t, header, remoteRepo.AccessToken)
+			assert.Equal(t, url, fmt.Sprintf("https://api.github.com/repos/%s/pulls", remoteRepo))
+			assert.Equal(t, header, accessToken)
 
-			assert.EqualValues(t, paramForFirstCmd, []string{"-C", remoteRepo.Location, "checkout", "-b", branchName})
-			assert.EqualValues(t, paramForSecondCmd, []string{"-C", remoteRepo.Location, "push", "https://access-token-for-forked-repo:x-oauth-basic@github.com/fork-user/test.git", "--no-verify"})
+			assert.EqualValues(t, paramForFirstCmd, []string{"-C", location, "checkout", "-b", branchName})
+			assert.EqualValues(t, paramForSecondCmd, []string{"-C", location, "push", "https://some-access-token:x-oauth-basic@github.com/fork-user/test.git", "--no-verify"})
 
 			assert.Equal(t, prNumber, 12345)
 			assert.Equal(t, jsonActualBody["title"], "A new PR")

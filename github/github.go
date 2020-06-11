@@ -9,12 +9,6 @@ import (
 	"strings"
 )
 
-type Repo struct {
-	Repository  string
-	Location    string
-	AccessToken string
-}
-
 //go:generate go run github.com/maxbrunsfeld/counterfeiter/v6 . Client
 type Client interface {
 	ExecuteGithubApi(string, string, string, []byte) ([]byte, error)
