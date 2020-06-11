@@ -35,14 +35,14 @@ it might also have / or \ `
 
 			paramForFirstCmd := fakeClient.ExecuteGithubCmdArgsForCall(0)
 			paramForSecondCmd := fakeClient.ExecuteGithubCmdArgsForCall(1)
-			url, _, header , body:= fakeClient.ExecuteGithubApiArgsForCall(0)
+			url, _, header, body := fakeClient.ExecuteGithubApiArgsForCall(0)
 			var jsonActualBody map[string]string
 			json.Unmarshal(body, &jsonActualBody)
 
 			assert.Equal(t, url, fmt.Sprintf("https://api.github.com/repos/%s/pulls", repo.Repository))
 			assert.Equal(t, header, repo.AccessToken)
 
-			assert.EqualValues(t, paramForFirstCmd, []string{"-C", repo.Location, "checkout","-b", branchName})
+			assert.EqualValues(t, paramForFirstCmd, []string{"-C", repo.Location, "checkout", "-b", branchName})
 			assert.EqualValues(t, paramForSecondCmd, []string{"-C", repo.Location, "push", "https://123456789:x-oauth-basic@github.com/test/test.git", "--no-verify"})
 
 			assert.Equal(t, prNumber, 12345)
@@ -64,15 +64,15 @@ it might also have / or \ `
 
 			paramForFirstCmd := fakeClient.ExecuteGithubCmdArgsForCall(0)
 			paramForSecondCmd := fakeClient.ExecuteGithubCmdArgsForCall(1)
-			url, _, header , body:= fakeClient.ExecuteGithubApiArgsForCall(0)
+			url, _, header, body := fakeClient.ExecuteGithubApiArgsForCall(0)
 			var jsonActualBody map[string]string
 			json.Unmarshal(body, &jsonActualBody)
 
 			assert.Equal(t, url, fmt.Sprintf("https://api.github.com/repos/%s/pulls", repo.Repository))
 			assert.Equal(t, header, repo.AccessToken)
 
-			assert.EqualValues(t, paramForFirstCmd, []string{"-C", repo.Location, "checkout","-b", branchName})
-			assert.EqualValues(t, paramForSecondCmd, []string{"-C", repo.Location, "push",  "https://123456789:x-oauth-basic@github.com/test/test.git", "--no-verify"})
+			assert.EqualValues(t, paramForFirstCmd, []string{"-C", repo.Location, "checkout", "-b", branchName})
+			assert.EqualValues(t, paramForSecondCmd, []string{"-C", repo.Location, "push", "https://123456789:x-oauth-basic@github.com/test/test.git", "--no-verify"})
 
 			assert.Equal(t, jsonActualBody["title"], "Pull request by bot")
 			assert.Equal(t, prNumber, 12345)
@@ -93,15 +93,15 @@ it might also have / or \ `
 
 			paramForFirstCmd := fakeClient.ExecuteGithubCmdArgsForCall(0)
 			paramForSecondCmd := fakeClient.ExecuteGithubCmdArgsForCall(1)
-			url, method, header , body:= fakeClient.ExecuteGithubApiArgsForCall(0)
+			url, method, header, body := fakeClient.ExecuteGithubApiArgsForCall(0)
 			var jsonActualBody map[string]string
 			json.Unmarshal(body, &jsonActualBody)
 
 			assert.Equal(t, url, fmt.Sprintf("https://api.github.com/repos/%s/pulls", repo.Repository))
 			assert.Equal(t, header, repo.AccessToken)
 
-			assert.EqualValues(t, paramForFirstCmd, []string{"-C", repo.Location, "checkout","-b", branchName})
-			assert.EqualValues(t, paramForSecondCmd, []string{"-C", repo.Location, "push",  "https://123456789:x-oauth-basic@github.com/test/test.git", "--no-verify"})
+			assert.EqualValues(t, paramForFirstCmd, []string{"-C", repo.Location, "checkout", "-b", branchName})
+			assert.EqualValues(t, paramForSecondCmd, []string{"-C", repo.Location, "push", "https://123456789:x-oauth-basic@github.com/test/test.git", "--no-verify"})
 
 			assert.Equal(t, prNumber, 12345)
 			assert.Equal(t, method, "POST")

@@ -13,7 +13,7 @@ import (
 
 func main() {
 	if len(os.Args) != 2 {
-		log.Println("usage:", os.Args[0],  "<sources directory>")
+		log.Println("usage:", os.Args[0], "<sources directory>")
 		os.Exit(1)
 	}
 

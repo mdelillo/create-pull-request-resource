@@ -21,10 +21,9 @@ func main() {
 		log.Fatalf("failed to read request: %s", err.Error())
 	}
 
-
 	client := github.GithubClient{}
 
-	url:=fmt.Sprintf("https://api.github.com/repos/%s/pulls/%s", request.Source.RemoteRepository, request.Version.Ref)
+	url := fmt.Sprintf("https://api.github.com/repos/%s/pulls/%s", request.Source.RemoteRepository, request.Version.Ref)
 
 	apiOutput, err := client.ExecuteGithubGetApi(url, request.Source.GithubToken)
 	if err != nil {

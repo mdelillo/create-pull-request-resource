@@ -10,21 +10,28 @@ import (
 
 type PullRequest struct {
 	Description  string
-	Title 	 	 string
+	Title        string
 	Base         string
 	BranchPrefix string
 	AutoMerge    bool
 }
 
+func NewPullRequest(description string, title string, base string, branchPrefix string, autoMerge bool) PullRequest {
 
-func NewPullRequest(description  string, title string,base string,branchPrefix string,autoMerge bool) PullRequest {
+	request := PullRequest{Description: description, Title: title, Base: base, BranchPrefix: branchPrefix, AutoMerge: autoMerge}
 
-	request := PullRequest{Description: description, Title:title, Base:base, BranchPrefix:branchPrefix, AutoMerge:autoMerge}
-
-	if description == "" {request.Description = "This is default description of the PR"}
-	if title == "" {request.Title = "Pull request by bot"}
-	if base == "" {request.Base = "master"}
-	if branchPrefix == "" {request.BranchPrefix = "pr-by-bot"}
+	if description == "" {
+		request.Description = "This is default description of the PR"
+	}
+	if title == "" {
+		request.Title = "Pull request by bot"
+	}
+	if base == "" {
+		request.Base = "master"
+	}
+	if branchPrefix == "" {
+		request.BranchPrefix = "pr-by-bot"
+	}
 
 	return request
 }
@@ -52,7 +59,7 @@ func (p PullRequest) createRemoteBranch(repo github.Repo, client github.Client) 
 
 	branchName := fmt.Sprintf("%s-%d", p.BranchPrefix, time.Now().Unix())
 
-	output, err := client.ExecuteGithubCmd( "-C", repo.Location, "checkout","-b", branchName)
+	output, err := client.ExecuteGithubCmd("-C", repo.Location, "checkout", "-b", branchName)
 	if err != nil {
 		return branchName, fmt.Errorf("failed to checkout new branch %w: %s", err, output)
 	}
@@ -73,7 +80,7 @@ func (p PullRequest) createPullRequestFor(branchName string, repo github.Repo, c
 		"head":  branchName,
 		"base":  p.Base,
 	})
-	apiOutput, err := client.ExecuteGithubApi(url, "POST",  repo.AccessToken, body)
+	apiOutput, err := client.ExecuteGithubApi(url, "POST", repo.AccessToken, body)
 	if err != nil {
 		return PrRespeonse{}, fmt.Errorf("failed to POST a pull request %w %s", err, apiOutput)
 	}
@@ -91,14 +98,13 @@ func (p PullRequest) mergePullRequest(prResponse PrRespeonse, repo github.Repo, 
 	url := fmt.Sprintf("https://api.github.com/repos/%s/pulls/%d/merge", repo.Repository, prResponse.Number)
 
 	body, _ := json.Marshal(map[string]string{
-		"commit_title": fmt.Sprintf("Auto merge pull request %d", prResponse.Number),
+		"commit_title":   fmt.Sprintf("Auto merge pull request %d", prResponse.Number),
 		"commit_message": "",
-		"sha": prResponse.Head.SHA,
+		"sha":            prResponse.Head.SHA,
 	})
-	apiOutput, err := client.ExecuteGithubApi(url, "PUT",  repo.AccessToken, body)
+	apiOutput, err := client.ExecuteGithubApi(url, "PUT", repo.AccessToken, body)
 	if err != nil {
 		return nil, fmt.Errorf("failed to PULL merge for pull request ID %d: %w \n %s", prResponse.Number, err, apiOutput)
 	}
 	return apiOutput, nil
 }
-
