@@ -37,6 +37,10 @@ func (g GithubClient) ExecuteGithubApi(url string, method string, authorizationH
 		return nil, fmt.Errorf("failed to read from git api command %s: %s", removeSecretsFromOutputs(err.Error(), authorizationHeaders), removeSecretsFromOutputs(string(response), authorizationHeaders))
 	}
 
+	if resp.StatusCode < 200 || resp.StatusCode > 299 {
+		return nil, fmt.Errorf("error: status code: %d, response: %s", resp.StatusCode, response)
+	}
+
 	return response, nil
 }
 
@@ -54,7 +58,7 @@ func (g GithubClient) ExecuteGithubCmd(param ...string) (string, error) {
 	return string(output), nil
 }
 
-func (g GithubClient) ExecuteGithubGetApi(url string, token string) ([]byte, error) {
+func (g GithubClient) ExecuteGithubGetApi(url string) ([]byte, error) {
 	resp, err := http.Get(url)
 	if err != nil {
 		return nil, fmt.Errorf("failed to execute git get call %w", err)
@@ -65,6 +69,9 @@ func (g GithubClient) ExecuteGithubGetApi(url string, token string) ([]byte, err
 		return nil, fmt.Errorf("failed to read from git api call %w", err)
 	}
 
-	return body, nil
+	if resp.StatusCode < 200 || resp.StatusCode > 299 {
+		return nil, fmt.Errorf("error: status code: %d, response: %s", resp.StatusCode, body)
+	}
 
+	return body, nil
 }
