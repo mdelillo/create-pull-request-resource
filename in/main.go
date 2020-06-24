@@ -25,7 +25,7 @@ func main() {
 
 	url := fmt.Sprintf("https://api.github.com/repos/%s/pulls/%s", request.Source.RemoteRepository, request.Version.Ref)
 
-	apiOutput, err := client.ExecuteGithubGetApi(url, request.Source.GithubToken)
+	apiOutput, err := client.ExecuteGithubGetApi(url)
 	if err != nil {
 		log.Fatalf("Could not make a request for listing the newly create PR: %s", err.Error())
 	}
@@ -39,5 +39,5 @@ func main() {
 
 	inPutResponse := fmt.Sprintf(`{ "version": { "ref": "%s" },"metadata": [{"sha":"%s"}]}`, request.Version.Ref, pullRequestContent.Head.SHA)
 
-	fmt.Println(string(inPutResponse))
+	fmt.Println(inPutResponse)
 }
