@@ -53,7 +53,7 @@ func testCreatePullRequestTask(t *testing.T, when spec.G, it spec.S) {
 			assert.Equal(t, jsonActualBody["title"], "A new PR")
 			assert.Equal(t, jsonActualBody["body"], description)
 			assert.Equal(t, jsonActualBody["base"], "master")
-			assert.Equal(t, jsonActualBody["head"], "test-org:"+branchName)
+			assert.Equal(t, jsonActualBody["head"], branchName)
 		})
 		it("apply the default values if not provided", func() {
 			pr := NewPullRequest("", "", "", "", false)
@@ -81,7 +81,7 @@ func testCreatePullRequestTask(t *testing.T, when spec.G, it spec.S) {
 			assert.Equal(t, prNumber, 12345)
 			assert.Equal(t, jsonActualBody["body"], "This is default description of the PR")
 			assert.Equal(t, jsonActualBody["base"], "master")
-			assert.Equal(t, jsonActualBody["head"], "test-org:"+branchName)
+			assert.Equal(t, jsonActualBody["head"], branchName)
 		})
 		it("apply the few default values if not provided", func() {
 			pr := NewPullRequest("This is the description of new PR by test", "Changing the version string to 12 from 14", "", "", false)
@@ -110,7 +110,7 @@ func testCreatePullRequestTask(t *testing.T, when spec.G, it spec.S) {
 			assert.Equal(t, jsonActualBody["title"], pr.Title)
 			assert.Equal(t, jsonActualBody["body"], pr.Description)
 			assert.Equal(t, jsonActualBody["base"], "master")
-			assert.Equal(t, jsonActualBody["head"], "test-org:"+branchName)
+			assert.Equal(t, jsonActualBody["head"], branchName)
 		})
 	})
 	when("auto merge is true", func() {

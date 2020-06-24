@@ -81,8 +81,11 @@ func (p PullRequest) createRemoteBranch(repo, location, accessToken string, clie
 func (p PullRequest) createPullRequestFor(branchName string, sourceRepo, remoteRepo, accessToken string, client github.Client) (PrRespeonse, error) {
 	url := fmt.Sprintf("https://api.github.com/repos/%s/pulls", remoteRepo)
 
-	githubUser := strings.Split(sourceRepo, "/")[0]
-	branchName = fmt.Sprintf("%s:%s", githubUser, branchName)
+	if sourceRepo != remoteRepo {
+		githubUser := strings.Split(sourceRepo, "/")[0]
+		branchName = fmt.Sprintf("%s:%s", githubUser, branchName)
+	}
+
 	body, _ := json.Marshal(map[string]string{
 		"title": p.Title,
 		"body":  p.Description,
